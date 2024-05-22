@@ -1,6 +1,7 @@
 import numpy as np
 import math
-def mac_number(gamma, R, T, speed) :
+from thermo import *
+def compute_mac_number(gamma, R, T, speed) :
     """
     Calculate the Mach number.
     
@@ -14,6 +15,22 @@ def mac_number(gamma, R, T, speed) :
     """
     v_sound = np.sqrt(gamma * R * T)
     return speed / v_sound
+
+def mac_number2speed(gamma, R, T, Mac_number) :
+    """
+    Calculate the speed.
+    
+    Parameters:
+    gamma (float): Adiabetique index
+    R (float): The gas constant.
+    T (float): The temperature.
+    Mac_number (float): The Mach number.
+    
+    Returns:
+    float: The speed.
+    """
+    v_sound = np.sqrt(gamma * R * T)
+    return Mac_number * v_sound
 
 def computIsoSEff(T0_1, T0_2, Pi, gamma) :
     """
@@ -93,7 +110,23 @@ def eff_iso2eff_poly(pressure_ratio, gamma, iso_eff):
 
 
 def ratio_pressure_isentropique(TiT,ToT,efficency_isentropic,gamma) : 
+    ToT_s = comp_temp_isenropic(ToT, TiT, efficency_isentropic)
+    
     return (1 - (1- ToT/TiT)/efficency_isentropic)**(-gamma/(gamma -1))
+
+def Total_temp2static_temp(gamma, total_temp, mac_number) :
+    return (total_temp)/(1 + (gamma - 1) / 2 * mac_number**2)
+
+def Static_temp2Total_Temp(gamma, basic_temp, mac_number) :
+    T0 = basic_temp * (1 + (gamma - 1) / 2 * mac_number**2)
+    return T0
+
+def Total_pression2static_pression(gamma, total_pression, mac_number) :
+    return  total_pression/(1 + (gamma - 1) / 2 * mac_number**2)**(gamma / (gamma - 1))
+
+def static_pression2TotalPression(gamma, basic_pression, mac_number) :
+    return basic_pression * (1 + (gamma - 1) / 2 * mac_number**2)**(gamma / (gamma - 1))
+
 
 def atmosisa(altitude):
     """

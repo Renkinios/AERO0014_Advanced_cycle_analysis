@@ -37,7 +37,12 @@ def compute_temp_turbine(TiT,P_hpt,m_a,m_f,ToT_beging) :
         iter  += 1
     return ToT,Cp_5_6
 
-def pressure_turbine(TiT, Tot, eta_isentropic, C_p, R, P_i_T) : 
+# def pressure_turbine(TiT, Tot, eta_isentropic, C_p, R, P_i_T) : 
+#     gamma = findGamma_indec(C_p, R)
+#     rapport_press = ratio_pressure_isentropique(TiT, Tot, eta_isentropic,gamma)
+#     return  1/rapport_press * P_i_T 
+def pressure_turbine(TiT, ToT, eta_isentropic, C_p, R, P_i_T) : 
     gamma = findGamma_indec(C_p, R)
-    rapport_press = ratio_pressure_isentropique(TiT, Tot, eta_isentropic,gamma)
-    return  1/rapport_press * P_i_T 
+    ToT_s = comp_temp_isenropic(ToT, TiT, eta_isentropic)
+    rapport_pres = (ToT_s/TiT)**(gamma/(gamma-1))
+    return  rapport_pres * P_i_T 

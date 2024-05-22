@@ -2,10 +2,13 @@ import numpy as np
 from unit import *
 from ISA import *
 from cycle.ambiante_condition import *
-from comb_chamber import *
+from cycle.comb_chamber import *
 from cycle.Intake import *
-from compressor import *
-from high_pressure_turbine import *
+from cycle.compressor import *
+from cycle.turbine import *
+from cycle.exhaust import *
+
+
 # Compute the iffernt mode of a cycle
 # Station 0 : Ambiante condition 
 # Station 1 : Intake
@@ -24,22 +27,24 @@ from high_pressure_turbine import *
 Altitude = 57400 # ft
 Altitude = convlength(Altitude,'ft','m')
 
-
 speed      = 550   # mph
 speed      = convspeed(speed,'mph','m/s')
-print("Speed : \t",speed)
 Temp_isa   = ISA_condition(Altitude,True)
-Mac_number = mac_number(Temp_isa.gamma_index, Temp_isa.R, Temp_isa.T0, speed)
-print("Mac number               : \t",Mac_number, "[-]")
-print("Temp isa                 : \t",Temp_isa.T0 - 273.15 ,"[°]")
-print("Pressure isa             : \t",Temp_isa.P0 / 10**3,"[kPa]")
+Mac_number = compute_mac_number(Temp_isa.gamma_index, Temp_isa.R, Temp_isa.T0, speed)
+
 
 T1, P1 = ambiante_condition(Temp_isa.gamma_index, Mac_number, Temp_isa.T0, Temp_isa.P0)
 
 print(" ####################### Ambiante condition ####################### ")
-print("Stagnation temperature    : \t",T1," [K]")
-print("Stagnation pressure       : \t",P1/10**3," [kPa]")
-
+print("Altitude               : \t",Altitude," [m]")
+print("Maximum temperature    : \t",T1," [K]")
+print("Maximum pressure       : \t",P1/10**3," [kPa]")
+print("Temperature isa        : \t",Temp_isa.T0," [K]")
+print("Pressure isa           : \t",Temp_isa.P0/10**3," [kPa]")
+print("Speed                  : \t",speed," [m/s]")
+print("Mac number             : \t",Mac_number)
+      
+      
 print(" ####################### Intake condition ####################### ")
 
 RR = 0.98
@@ -137,45 +142,20 @@ eta_isentropic_LPT = 0.93
 P7  = pressure_turbine(T6, T7, eta_isentropic_HPT, CP_6_7, R, P6)
 print("Pressure Low Pressure Turbine    : \t", P7/10**3, "[KPa]")
 
-print(" ####################### Afterburner ####################### ")
+
 print("######################## Dry mode #########################")
+print(" ####################### Afterburner ####################### ")
+
 print(" ####################### Nozzle ####################### ")
 
-def mach_number_nozzle(gamma, total_pres, pressure_exast) :
-    return np.sqrt(2 / (gamma - 1) *((total_pres/pressure_exast)**((gamma - 1)/gamma) - 1))
 
-def compute_mach_exhaust(total_pres, pressure_exast, gamma_begin, total_temp, m_fuel, m_air, R) :
-    old_gamma = 0
-    gamma     = gamma_begin
-    tol       = 1e4
-    iter      = 0
-    iter_max  = 100
-    f         = m_fuel/m_air
-
-    while iter < iter_max and np.abs((old_gamma-gamma)/gamma) < tol :
-        old_gamma   = gamma
-        mach_number = mach_number_nozzle(gamma, total_pres, pressure_exast)
-        temp_exaust = total_temp/(1 + mach_number * (( gamma - 1 )/2))
-        Cp          = findCp((temp_exaust + total_temp) / 2 , f)
-        gamma       = findGamma_indec(Cp, R)
-        iter       += 1
-    speed_sound =  np.sqrt(gamma * R * temp_exaust)
-    V_10        = mach_number * speed_sound
-    return V_10
-
-def compute_thrust(V_10, m_air, m_fuel, v_0, p_ex, p_0, A_ex) :
-    return (m_air + m_fuel) * V_10 - m_air * v_0 + (p_ex -p_0) * A_ex
-
-    
-def compute_specific_fuel_consumption(m_fuel, Trust) :
-    return m_fuel / Trust
 
 
 V_10 = compute_mach_exhaust(P7, Temp_isa.P0 ,1.4, T7, mass_flow_fuel, mass_flow_air, R)
 print("Pressure Low Pressure Turbine    : \t", P7/10**3, "[KPa]")
 
 print("Exaust speed                     : \t", V_10, "[m/s]")
-trust = compute_thrust(V_10, mass_flow_air, mass_flow_fuel, speed,P7, P7,0)
+trust = compute_thrust(V_10, mass_flow_air, mass_flow_fuel, speed,P7, P7,0, 0)
 print("Trust                            : \t",trust/10**3, "[kN]")
 SFC = compute_specific_fuel_consumption(mass_flow_fuel, trust)
 print("Specific fuel consumption        : \t",SFC, "[kg/N.s]")
@@ -200,7 +180,7 @@ print(" ####################### Nozzle ####################### ")
 V_10 = compute_mach_exhaust(P8, Temp_isa.P0 ,1.38, T8, mass_flow_fuel + m_after_burn, mass_flow_air, R)
 print("Speed exhaust                    : \t", V_10, "[m/s]")
 
-trust = compute_thrust(V_10, mass_flow_air, mass_flow_fuel + m_after_burn, speed, P7, P7,0)
+trust = compute_thrust(V_10, mass_flow_air, mass_flow_fuel + m_after_burn, speed, P7, P7,0, 0)
 print("Trust                            : \t",trust/10**3, "[kN]")
 
 SFC = compute_specific_fuel_consumption(mass_flow_fuel + m_after_burn, trust)

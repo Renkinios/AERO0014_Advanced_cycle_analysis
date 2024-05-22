@@ -25,6 +25,7 @@ def convacc(value, input_unit, output_unit):
     
     return converted_value
 
+
 def convang(value, input_unit, output_unit):
     """
     Convert angles between different units.
@@ -39,13 +40,15 @@ def convang(value, input_unit, output_unit):
     """
     units_to_degrees = {
         'deg': 1,
-        'rad': 57.2958  # 1 radian = 57.2958 degrees
+        'rad': 57.2958,  # 1 radian = 57.2958 degrees
+        'grad': 0.9     # 1 grad = 0.9 degrees
     }
     
     value_in_degrees = value * units_to_degrees[input_unit]
     converted_value = value_in_degrees / units_to_degrees[output_unit]
     
     return converted_value
+
 
 def convangacc(value, input_unit, output_unit):
     """
@@ -62,7 +65,7 @@ def convangacc(value, input_unit, output_unit):
     units_to_degrees_per_second_squared = {
         'deg/s^2': 1,
         'rad/s^2': 57.2958,  # 1 radian/s^2 = 57.2958 degrees/s^2
-        'rpm/s^2': 360  # 1 rpm/s^2 = 360 degrees/s^2
+        'rpm/s^2': 360 / 60  # 1 rpm/s^2 = 6 degrees/s^2 (1 rpm = 6 degrees)
     }
     
     value_in_degrees_per_second_squared = value * units_to_degrees_per_second_squared[input_unit]
@@ -129,11 +132,16 @@ def convforce(value, input_unit, output_unit):
     Returns:
     float: The converted value.
     """
-    units = {
-        'lbf': 1,
-        'N': 0.224809
+    units_to_newton = {
+        'lbf': 4.44822,  # 1 lbf = 4.44822 N
+        'N': 1          # 1 N = 1 N
     }
-    return value * units[output_unit] / units[input_unit]
+    
+    value_in_newton = value * units_to_newton[input_unit]
+    converted_value = value_in_newton / units_to_newton[output_unit]
+    
+    return converted_value
+
 
 def convmass(value, input_unit, output_unit):
     """
@@ -147,12 +155,16 @@ def convmass(value, input_unit, output_unit):
     Returns:
     float: The converted value.
     """
-    units = {
-        'lbm': 1,
-        'kg': 2.20462,
-        'slug': 0.0685218
+    units_to_kg = {
+        'lbm': 0.453592,  # 1 lbm = 0.453592 kg
+        'kg': 1,          # 1 kg = 1 kg
+        'slug': 14.5939   # 1 slug = 14.5939 kg
     }
-    return value * units[output_unit] / units[input_unit]
+    
+    value_in_kg = value * units_to_kg[input_unit]
+    converted_value = value_in_kg / units_to_kg[output_unit]
+    
+    return converted_value
 
 def convpres(value, input_unit, output_unit):
     """
@@ -166,13 +178,19 @@ def convpres(value, input_unit, output_unit):
     Returns:
     float: The converted value.
     """
-    units = {
-        'psi': 1,
-        'Pa': 0.000145038,
-        'psf': 0.00694444,
-        'atm': 14.6959
+    units_to_pascal = {
+        'psi': 6894.76,    # 1 psi = 6894.76 Pa
+        'Pa': 1,           # 1 Pa = 1 Pa
+        'psf': 47.8803,    # 1 psf = 47.8803 Pa
+        'atm': 101325      # 1 atm = 101325 Pa
     }
-    return value * units[output_unit] / units[input_unit]
+    
+    value_in_pascal = value * units_to_pascal[input_unit]
+    converted_value = value_in_pascal / units_to_pascal[output_unit]
+    
+    return converted_value
+
+
 
 def convlength(value, input_unit, output_unit):
     """
@@ -202,6 +220,8 @@ def convlength(value, input_unit, output_unit):
     converted_value = value_in_meters / units_to_meters[output_unit]
     
     return converted_value
+
+
 
 def convtemp(value, input_unit, output_unit):
     """
@@ -244,6 +264,9 @@ def convtemp(value, input_unit, output_unit):
         elif output_unit == 'F':
             return value - 459.67
 
+    return value  # If the input_unit and output_unit are the same, return the value as is.
+
+
 def convspeed(value, input_unit, output_unit):
     """
     Convert velocity between different units.
@@ -276,3 +299,29 @@ def convspeed(value, input_unit, output_unit):
     return converted_value
 
 
+def convenergy(value, input_unit, output_unit):
+    """
+    Convert energy between different units.
+    
+    Parameters:
+    value (float): The value to be converted.
+    input_unit (str): The unit of the input value.
+    output_unit (str): The unit to convert to.
+    
+    Returns:
+    float: The converted value.
+    """
+    units_to_joules = {
+        'J': 1,             # 1 joule = 1 joule
+        'calorie': 4.184,       # 1 calorie = 4.184 joules
+        'kilocalorie': 4184,    # 1 kilocalorie = 4184 joules
+        'kWh': 3600000,         # 1 kWh = 3600000 joules
+        'BTU': 1055.06,         # 1 BTU = 1055.06 joules
+        'erg': 1e-7,            # 1 erg = 1e-7 joules
+        'foot-pound': 1.35582   # 1 foot-pound = 1.35582 joules
+    }
+    
+    value_in_joules = value * units_to_joules[input_unit]
+    converted_value = value_in_joules / units_to_joules[output_unit]
+    
+    return converted_value

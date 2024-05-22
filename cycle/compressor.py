@@ -29,3 +29,8 @@ def compute_power_compressor(mass_flow, CP, TiT, ToT) :
     return mass_flow * CP *(ToT -TiT)
 
 
+def Compute_press_output(factor_compress, input_press) : 
+    return factor_compress * input_press
+
+
+
