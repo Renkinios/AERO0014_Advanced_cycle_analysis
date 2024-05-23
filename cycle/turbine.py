@@ -46,3 +46,13 @@ def pressure_turbine(TiT, ToT, eta_isentropic, C_p, R, P_i_T) :
     ToT_s = comp_temp_isenropic(ToT, TiT, eta_isentropic)
     rapport_pres = (ToT_s/TiT)**(gamma/(gamma-1))
     return  rapport_pres * P_i_T 
+
+
+def compute_eff_iso_turbine(TiT, ToT, pit, pot, gamma) : 
+    return (1 - ToT/TiT)/(1 - (pit/pot)**(-(gamma - 1)/gamma))
+
+def eff_poly2eff_iso_turbine(gamma, eff_poly, pi_t) :
+    return (1 - pi_t **(-eff_poly * (gamma -1)/gamma)) / (1 - pi_t **(-(gamma -1)/gamma))
+
+def eff_iso2eff_poly_turbine(gamma, eff_iso_turbine, pi_t):
+    return -gamma / ((gamma - 1) * np.log(pi_t)) * np.log(1 - eff_iso_turbine + eff_iso_turbine * pi_t ** (-(gamma - 1) / gamma))

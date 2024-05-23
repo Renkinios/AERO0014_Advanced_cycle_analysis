@@ -66,3 +66,9 @@ def comp_temp_isenropic(T0, Ti, eff_iso) :
     float: The isentropic temperature.
     """
     return Ti  + (T0 - Ti) / eff_iso
+
+def compute_iso_eff_pure(TiT, ToT, ToT_iso) :
+    return (TiT - ToT) / (TiT - ToT_iso)
+
+def compute_Temp_iso(pot, pit, TiT, gamma) : 
+    return TiT * (pot/pit) **((gamma - 1)/gamma)

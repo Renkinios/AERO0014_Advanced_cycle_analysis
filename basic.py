@@ -32,21 +32,6 @@ def mac_number2speed(gamma, R, T, Mac_number) :
     v_sound = np.sqrt(gamma * R * T)
     return Mac_number * v_sound
 
-def computIsoSEff(T0_1, T0_2, Pi, gamma) :
-    """
-    Calculate the isentropic efficiency.
-    
-    Parameters:
-    T0_1 (float): The temperature at station 1.
-    T0_2 (float): The temperature at station 2.
-    Pi (float): The pressure ratio.
-    gamma (float): The adiabatic index.
-    
-    Returns:
-    float: The isentropic efficiency.
-    """
-    return (Pi**((gamma-1)/gamma) - 1) / (T0_2/T0_1 - 1)
-
 def findGamma_indec(C_p, R) : 
     """
     Calculate the adiabatic index.
@@ -76,38 +61,6 @@ def turbIsoSEff(pi_t, T0_1, T0_2, C_p, R) :
     """
     gamma = findGamma_indec(C_p, R)
     return  (1 - T0_2/T0_1) / (1 - pi_t**(-(gamma-1)/gamma))
-
-
-def eff_poly2eff_iso(pressure_ratio,gamma, poly_eff) :
-    """
-    Calculate the isentropic efficieny with the polytrpîc efficiency.
-    
-    Parameters:
-    pressure_ratio (float): The pressure ratio.
-    gamma (float): The adiabatic index.
-    isentropic_eff (float): The isentropic efficiency.
-    
-    Returns:
-    float: The polytropic efficiency.
-    """
-    return (pressure_ratio**((gamma-1)/gamma) - 1) / (pressure_ratio**((gamma-1)/(gamma * poly_eff)) - 1)
-
-def eff_iso2eff_poly(pressure_ratio, gamma, iso_eff):
-    """
-    Calculer l'efficacité polytropique à partir de l'efficacité isentropique.
-
-    Paramètres:
-    pressure_ratio (float): Le rapport de pression (\(\pi_{c,A}\)).
-    gamma (float): L'indice adiabatique (\(\gamma_a\)).
-    iso_eff (float): L'efficacité isentropique (\(\eta_{c,s,A}\)).
-
-    Retourne:
-    float: L'efficacité polytropique (\(\eta_p\)).
-    """
-    term1 = np.log(pressure_ratio ** ((gamma - 1) / gamma))
-    term2 = np.log((pressure_ratio ** ((gamma - 1) / gamma) - 1) / iso_eff + 1)
-    return term1 / term2
-
 
 def ratio_pressure_isentropique(TiT,ToT,efficency_isentropic,gamma) : 
     ToT_s = comp_temp_isenropic(ToT, TiT, efficency_isentropic)

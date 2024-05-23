@@ -182,7 +182,9 @@ def convpres(value, input_unit, output_unit):
         'psi': 6894.76,    # 1 psi = 6894.76 Pa
         'Pa': 1,           # 1 Pa = 1 Pa
         'psf': 47.8803,    # 1 psf = 47.8803 Pa
-        'atm': 101325      # 1 atm = 101325 Pa
+        'atm': 101325,     # 1 atm = 101325 Pa
+        'bar': 100000,     # 1 bar = 100000 Pa
+
     }
     
     value_in_pascal = value * units_to_pascal[input_unit]

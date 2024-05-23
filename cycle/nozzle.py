@@ -2,7 +2,7 @@
 import numpy as np
 from findCp import *
 from basic import *
-
+from cycle.exhaust import *
 def compute_nozzle_converging_pressure_ratio_phi_n(gamma_start, TiT_tot, m_air, m_fuel, R) : 
     """
     Calculate the nozzle pressure ratio.
@@ -51,14 +51,34 @@ def compute_nozzle_converging_pressure_ratio_prime(gamma, total_p, static_pressu
         shock = 0
     return shock
 
-def compute_nozzle_converging_area(gamma, R, static_T5,total_p, dot_m) :
+def compute_nozzle_converging_area_mach(gamma, R, static_T5,total_p, dot_m, mac_number) :
+    """
+    This fonction is for a mach number of one i cna chan
+    """
 
-    speed = mac_number2speed(gamma, R, static_T5, 1)
-    static_pressure = Total_pression2static_pression(gamma, total_p, 1)
+    speed = mac_number2speed(gamma, R, static_T5, mac_number)
+    static_pressure = Total_pression2static_pression(gamma, total_p, mac_number)
     rho = static_pressure/ (R * static_T5)
     return (dot_m / (rho * speed)), static_pressure, speed
 
 
 
+def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fuel, v_0,isa) :
+
+    # first step see if we have a mach number : 
+    # this is calculate with a mac of 1 to sea if we have a shock or not
+    gamma, static_temp = compute_nozzle_converging_pressure_ratio_phi_n(gamma_start, total_temp, flux_air, flux_fuel, isa.R)
+    shock = compute_nozzle_converging_pressure_ratio_prime(gamma, total_pression, isa.P0)
+
+    if shock == 1 :
+        # the mac didn't change so M = 1
+        area, static_pressure, speed_output_fan = compute_nozzle_converging_area_mach(gamma, isa.R, static_temp, total_pression, flux_air + flux_fuel, 1)
+        Trust = compute_thrust(speed_output_fan, flux_air, flux_fuel, v_0, static_pressure, isa.P0, area, shock)
+    else :
+        # The mac change so need to calculate it iteratively
+        V_out, gamma, Cp, mach_number = compute_mach_exhaust(total_pression, isa.P0, gamma_start, total_temp, flux_fuel, flux_air, isa.R)
+        area, static_pressure, speed_output_fan = compute_nozzle_converging_area_mach(gamma, isa.R, isa.P0, total_pression, flux_air + flux_fuel, mach_number)
+        Trust = compute_thrust(V_out, flux_air, flux_fuel, v_0, isa.P0, isa.P0, area, shock)
+    return Trust
 
 

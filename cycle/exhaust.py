@@ -35,14 +35,9 @@ def compute_mach_exhaust(Total_pressure, static_pressure, gamma_begin, Total_tem
         Cp          = findCp((static_temp + Total_temp) / 2, f)
         gamma       = findGamma_indec(Cp, R)
         iter       += 1
-
-    print("gamma \t", gamma)
-    print("Temp \t", static_temp)
     speed_sound =  np.sqrt(gamma * R * static_temp)
     V_10        = mach_number * speed_sound
-    print("The mach number is : \t", mach_number)
-    print("speed sound is : \t", speed_sound)
-    return V_10
+    return V_10, gamma, Cp, mach_number
 
 def compute_thrust(V_10, m_air, m_fuel, v_0, p_ex, p_0, A_ex, shock_converging) :
     if shock_converging == 1 :
@@ -52,7 +47,7 @@ def compute_thrust(V_10, m_air, m_fuel, v_0, p_ex, p_0, A_ex, shock_converging) 
 
 
 def compute_specific_fuel_consumption(m_fuel, Trust) :
-    return (m_fuel / Trust) *10 * 3600 # kg/ daN / h
+    return (m_fuel / Trust) 
 
 def Compute_exaust_velocity_trust(T, m_air, m_fuel, v_initial) : 
     return (T + m_air * v_initial) /(m_air + m_fuel)
