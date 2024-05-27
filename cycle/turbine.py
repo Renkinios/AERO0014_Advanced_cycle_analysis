@@ -56,3 +56,11 @@ def eff_poly2eff_iso_turbine(gamma, eff_poly, pi_t) :
 
 def eff_iso2eff_poly_turbine(gamma, eff_iso_turbine, pi_t):
     return -gamma / ((gamma - 1) * np.log(pi_t)) * np.log(1 - eff_iso_turbine + eff_iso_turbine * pi_t ** (-(gamma - 1) / gamma))
+
+def comp_work_turbine(cp, tit, ratio_p, eff_s, gamma) : 
+    """
+    ratio p : definis comme p1/p2 
+    """
+    return eff_s * tit * (ratio_p**((gamma - 1)/gamma) - 1)
+
+

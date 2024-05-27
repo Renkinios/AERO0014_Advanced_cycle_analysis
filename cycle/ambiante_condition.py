@@ -2,7 +2,7 @@ def ambiante_condition(gamma, mac_number, static_temp, static_pressure) :
     '''
     RAM effect
     Inputs : 
-    - gamma : Adiabatic index
+    - gamma : Adiabatic index --> .gamma_index DANGER
     - mac_number : Mach number
     - static_temp : Initial temperature
     tic : Initial pressure

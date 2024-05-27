@@ -42,10 +42,12 @@ def mass_flow_chamber(mass_flow,TiT,ToT,Ref_temp,Comb_eff,FuelLowerHeat,Starf) :
     return mdotf 
 
 def compute_temperature_before_chamber(m_air ,m_fuel, ToT, T_ref, start_cp, heating_value) : 
+    """
+    start_cp : 1000
+    """
     Cp_output     = start_cp
     Cp_output_old = 0
-    Cp_input      = findCp((ToT + T_ref)/2, (m_fuel )/ m_air) # before add fuel 
-    print("CP_input \t:", Cp_input)
+    Cp_input      = findCp((ToT + T_ref)/2, (m_fuel)/ m_air) # before add fuel 
     tol           = 1e4
     iter          = 0 
     iter_max      = 100

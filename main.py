@@ -7,6 +7,9 @@ from cycle.Intake import *
 from cycle.compressor import *
 from cycle.turbine import *
 from cycle.exhaust import *
+from fonction_print import *
+from cycle.nozzle import *
+from thermo import *
 
 
 # Compute the iffernt mode of a cycle
@@ -69,7 +72,7 @@ print("Pressure                  : \t",P3/10**3," [kPa]")
 mass_flow_air      = 56   # [kg/s]
 
 Power_comp_lpc = compute_power_compressor(mass_flow_air, Cp_lpc, T_2, T3)
-print("Power compressor           : \t",Power_comp_lpc)
+print("Power compressor           : \t",Power_comp_lpc/10**6," [MW]")
 
 
 print(" ####################### Compression High pressure condition ####################### ")
@@ -89,7 +92,7 @@ print("Pressure CHP              : \t",P4/10**3," [kPa]")
 
 Power_comp_hpc = compute_power_compressor(mass_flow_air, Cp_hpc, T3, T4)
 
-print("Power compressor CHP      : \t",Power_comp_hpc)
+print("Power compressor CHP      : \t",Power_comp_hpc/10**6," [MW]")
 
 print(" ####################### Combustion chamber condition ####################### ")
 # Combustion chamber
@@ -117,6 +120,8 @@ print(" ####################### High Pressure Turbine ####################### ")
 meca_eff_shaft_high = 0.995
 
 power_hpt = power_produce_turbine(Power_comp_hpc,meca_eff_shaft_high)
+loss_shaft = - Power_comp_hpc  + power_hpt
+print("loss_shaft                : \t", loss_shaft)
 
 print("Power High Pressure Turbine : \t",power_hpt/10**6,"[MW]")
 T_6_first_guess  = 1000 
@@ -132,6 +137,8 @@ print(" ####################### Low pressure turbine ####################### ")
 meca_eff_shaft_low = 0.995
 
 power_hpt_low = power_produce_turbine(power_hpt,meca_eff_shaft_low)
+loss_shaft =  -power_hpt + power_hpt_low
+print("Loss Shaft : \t",loss_shaft/10)
 print("Power Low Pressure Turbine : \t",power_hpt_low/10**6,"[MW]")
 
 T_7_first_guess  = 1000 
@@ -148,17 +155,29 @@ print(" ####################### Afterburner ####################### ")
 
 print(" ####################### Nozzle ####################### ")
 
-
-
-
-V_10 = compute_mach_exhaust(P7, Temp_isa.P0 ,1.4, T7, mass_flow_fuel, mass_flow_air, R)
+V_10, gamma, Cp, mach_number = compute_mach_exhaust(P7, Temp_isa.P0 ,1.4, T7, mass_flow_fuel, mass_flow_air, R)
 print("Pressure Low Pressure Turbine    : \t", P7/10**3, "[KPa]")
 
 print("Exaust speed                     : \t", V_10, "[m/s]")
-trust = compute_thrust(V_10, mass_flow_air, mass_flow_fuel, speed,P7, P7,0, 0)
-print("Trust                            : \t",trust/10**3, "[kN]")
-SFC = compute_specific_fuel_consumption(mass_flow_fuel, trust)
-print("Specific fuel consumption        : \t",SFC, "[kg/N.s]")
+trust_dry = compute_thrust(V_10, mass_flow_air, mass_flow_fuel, speed,P7, P7,0, 0)
+print_trust(trust_dry)
+SFC = compute_specific_fuel_consumption(mass_flow_fuel, trust_dry)
+print_SFC(SFC)
+Area_nozzle = compute_nozzle_area(V_10, Temp_isa.P0, Temp_isa.T0, R, mass_flow_air + mass_flow_fuel)
+print("Area nozzle                      : \t", Area_nozzle, "[m^2]")
+
+propu_eff = comp_eff_propu_res(speed, V_10)
+print("Propulsion efficiency            : \t", propu_eff)
+propu_eff = comp_eff_termique_res(FuelLowerHeat, mass_flow_air, mass_flow_fuel, speed, V_10)
+print("Thermal efficiency               : \t", propu_eff)
+Q_dry = compute_heat_Q(mass_flow_fuel, FuelLowerHeat)
+W_dry = compute_work_W(mass_flow_air, speed, mass_flow_fuel + mass_flow_air, V_10)
+eta_th_dry = thermal_eff(W_dry,Q_dry)
+print("eta_th                          : \t", eta_th_dry)
+eta_p_dry = trust_dry * speed / W_dry
+print("eta_p                           : \t", eta_p_dry)
+eff_tot = eta_th_dry * eta_p_dry
+print("eff_tot                         : \t", eff_tot)
 
 print("####################### WET mode #######################")
 print(" ###################### Afterburn ####################### ")
@@ -177,14 +196,34 @@ P8  = Total_pressure_combustion(aftern_burn_pressure_loss,P7)
 print("Pressure afterburner             : \t", P8/10**3, "[kPa]")
 print(" ####################### Nozzle ####################### ")
 
-V_10 = compute_mach_exhaust(P8, Temp_isa.P0 ,1.38, T8, mass_flow_fuel + m_after_burn, mass_flow_air, R)
+V_10, gamma, Cp, mach_number = compute_mach_exhaust(P8, Temp_isa.P0 ,1.38, T8, mass_flow_fuel + m_after_burn, mass_flow_air, R)
 print("Speed exhaust                    : \t", V_10, "[m/s]")
 
 trust = compute_thrust(V_10, mass_flow_air, mass_flow_fuel + m_after_burn, speed, P7, P7,0, 0)
-print("Trust                            : \t",trust/10**3, "[kN]")
+print_trust(trust)
 
+Area_nozzle = compute_nozzle_area(V_10, Temp_isa.P0, Temp_isa.T0, R, mass_flow_air + mass_flow_fuel + m_after_burn)
+
+print("Area nozzle                      : \t", Area_nozzle, "[m^2]")
 SFC = compute_specific_fuel_consumption(mass_flow_fuel + m_after_burn, trust)
-print("Specific fuel consumption        : \t",SFC, "[kg/N.s]")
+print_SFC(SFC)
+propu_eff = comp_eff_propu_res(speed, V_10)
+print("Propulsion efficiency            : \t", propu_eff)
+propu_eff = comp_eff_termique_res(FuelLowerHeat, mass_flow_air, mass_flow_fuel + m_after_burn, speed, V_10)
+print("Thermal efficiency               : \t", propu_eff)
+
+Q = compute_heat_Q(mass_flow_fuel + m_after_burn, FuelLowerHeat)
+W = compute_work_W(mass_flow_air, speed, mass_flow_fuel + mass_flow_air + m_after_burn, V_10)
+eta_th = thermal_eff(W,Q)
+print("W                               : \t", W)
+print("Q                               : \t", Q)
+print("eta_th                          : \t", eta_th)
+eta_p = propu_eff(trust,speed,W)
+print("eta_p                           : \t", eta_p)
+eff_tot = eta_th * eta_p
+print("eff_tot                         : \t", eff_tot)
+
+
 
 
 

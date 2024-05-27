@@ -55,7 +55,7 @@ eta_turbine_isentro = 0.8
 T_2, CP12 = compute_temperature_before_chamber(m_air, m_fuel,TiT_chamber,isa_sea_lvl.T0_r,1000, fuel_lower_heating)
 
 print("T_2                  : \t", T_2)
-
+print("CP                   : \t",CP12)
 # Hypothese that 
 #  The heat capacity of the incoming air is also applicable to
 #  the compression since T◦

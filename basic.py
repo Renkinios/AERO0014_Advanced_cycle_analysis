@@ -14,6 +14,7 @@ def compute_mac_number(gamma, R, T, speed) :
     float: The Mach number.
     """
     v_sound = np.sqrt(gamma * R * T)
+    print("v_soud", v_sound)
     return speed / v_sound
 
 def mac_number2speed(gamma, R, T, Mac_number) :
@@ -45,27 +46,6 @@ def findGamma_indec(C_p, R) :
     """
     return C_p / (C_p - R)
 
-def turbIsoSEff(pi_t, T0_1, T0_2, C_p, R) :
-    """
-    Calculate the turbine isentropic efficiency.
-    
-    Parameters:
-    pi_t (float): The turbine pressure ratio.
-    T0_1 (float): The temperature at station 1.
-    T0_2 (float): The temperature at station 2.
-    C_p (float): The specific heat at constant pressure.
-    R (float): The gas constant.
-    
-    Returns:
-    float: The turbine isentropic efficiency.
-    """
-    gamma = findGamma_indec(C_p, R)
-    return  (1 - T0_2/T0_1) / (1 - pi_t**(-(gamma-1)/gamma))
-
-def ratio_pressure_isentropique(TiT,ToT,efficency_isentropic,gamma) : 
-    ToT_s = comp_temp_isenropic(ToT, TiT, efficency_isentropic)
-    
-    return (1 - (1- ToT/TiT)/efficency_isentropic)**(-gamma/(gamma -1))
 
 def Total_temp2static_temp(gamma, total_temp, mac_number) :
     return (total_temp)/(1 + (gamma - 1) / 2 * mac_number**2)

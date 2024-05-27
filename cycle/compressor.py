@@ -101,5 +101,14 @@ def compute_power_fan(m_entrance, m_controunement, CP, TiT, ToT):
     """
     return (m_entrance + m_controunement ) * CP * (ToT - TiT)
 
+
+# juste equation m_air = m_sortant + m_rentrant 
+#                bipasse = m_sortant/ m_entran
 def compute_m_sortant_fan(by_pass, m_entrant) : 
     return (by_pass * m_entrant)
+
+def compute_m_entrant_totot(by_pass, m_air) : 
+    return (m_air) /(1 + by_pass)
+
+def compute_m_sortant_tot_m(by_pass,m_air) : 
+    return (m_air * by_pass) /(1 + by_pass)

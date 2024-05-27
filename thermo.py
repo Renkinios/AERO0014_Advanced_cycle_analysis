@@ -23,7 +23,8 @@ def propu_eff(T,v_init,W) :
     Returns:
     float: The propulsive efficiency.
     """
-    return T*(v_init)/W
+    # return T*(v_init)/W
+    return 1
 
 def compute_work_W(mass_flow_input, speed_input ,mass_flow_output, speed_output) : 
     """
@@ -72,3 +73,9 @@ def compute_iso_eff_pure(TiT, ToT, ToT_iso) :
 
 def compute_Temp_iso(pot, pit, TiT, gamma) : 
     return TiT * (pot/pit) **((gamma - 1)/gamma)
+
+def comp_eff_propu_res(v_start, v_end) : 
+    return 2 * v_start/(v_start + v_end)
+
+def comp_eff_termique_res(heating_val, mass_air, mass_fuel, v_start, v_end) : 
+    return mass_air * ( v_end**2 - v_start**2 ) / (2 * mass_fuel * heating_val)

@@ -3,6 +3,8 @@ import numpy as np
 from findCp import *
 from basic import *
 from cycle.exhaust import *
+
+
 def compute_nozzle_converging_pressure_ratio_phi_n(gamma_start, TiT_tot, m_air, m_fuel, R) : 
     """
     Calculate the nozzle pressure ratio.
@@ -61,9 +63,15 @@ def compute_nozzle_converging_area_mach(gamma, R, static_T5,total_p, dot_m, mac_
     rho = static_pressure/ (R * static_T5)
     return (dot_m / (rho * speed)), static_pressure, speed
 
+def compute_nozzle_area(speed, static_pres, static_temps, R, dot_m) : 
+    rho = static_pres/ (R * static_temps)
+    return dot_m / (rho * speed)
+
+    
 
 
-def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fuel, v_0,isa) :
+
+def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fuel, v_0, isa) :
 
     # first step see if we have a mach number : 
     # this is calculate with a mac of 1 to sea if we have a shock or not

@@ -35,6 +35,7 @@ def compute_mach_exhaust(Total_pressure, static_pressure, gamma_begin, Total_tem
         Cp          = findCp((static_temp + Total_temp) / 2, f)
         gamma       = findGamma_indec(Cp, R)
         iter       += 1
+    print("Gamma : ", gamma)
     speed_sound =  np.sqrt(gamma * R * static_temp)
     V_10        = mach_number * speed_sound
     return V_10, gamma, Cp, mach_number
