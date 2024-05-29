@@ -23,22 +23,21 @@ def compute_mach_exhaust(Total_pressure, static_pressure, gamma_begin, Total_tem
     """
     old_gamma = 0
     gamma     = gamma_begin
-    tol       = 1e4
+    tol       = 1e-4
     iter      = 0
     iter_max  = 200
     f         = m_fuel/m_air
 
-    while iter < iter_max and np.abs((old_gamma-gamma)/gamma) < tol :
+    while iter < iter_max and tol < np.abs((old_gamma-gamma)/gamma)  :
         old_gamma   = gamma
         mach_number = mach_number_nozzle(gamma, Total_pressure, static_pressure)
         static_temp = Total_temp2static_temp(gamma, Total_temp, mach_number)
         Cp          = findCp((static_temp + Total_temp) / 2, f)
         gamma       = findGamma_indec(Cp, R)
         iter       += 1
-    print("Gamma : ", gamma)
     speed_sound =  np.sqrt(gamma * R * static_temp)
     V_10        = mach_number * speed_sound
-    return V_10, gamma, Cp, mach_number
+    return V_10, gamma, Cp, mach_number, static_temp
 
 def compute_thrust(V_10, m_air, m_fuel, v_0, p_ex, p_0, A_ex, shock_converging) :
     if shock_converging == 1 :

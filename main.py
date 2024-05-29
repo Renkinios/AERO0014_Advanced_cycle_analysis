@@ -155,7 +155,7 @@ print(" ####################### Afterburner ####################### ")
 
 print(" ####################### Nozzle ####################### ")
 
-V_10, gamma, Cp, mach_number = compute_mach_exhaust(P7, Temp_isa.P0 ,1.4, T7, mass_flow_fuel, mass_flow_air, R)
+V_10, gamma, Cp, mach_number, static_T7 = compute_mach_exhaust(P7, Temp_isa.P0 ,1.4, T7, mass_flow_fuel, mass_flow_air, R)
 print("Pressure Low Pressure Turbine    : \t", P7/10**3, "[KPa]")
 
 print("Exaust speed                     : \t", V_10, "[m/s]")
@@ -163,7 +163,9 @@ trust_dry = compute_thrust(V_10, mass_flow_air, mass_flow_fuel, speed,P7, P7,0, 
 print_trust(trust_dry)
 SFC = compute_specific_fuel_consumption(mass_flow_fuel, trust_dry)
 print_SFC(SFC)
-Area_nozzle = compute_nozzle_area(V_10, Temp_isa.P0, Temp_isa.T0, R, mass_flow_air + mass_flow_fuel)
+# Area_nozzle = compute_nozzle_area(V_10, Temp_isa.P0, Temp_isa.T0, R, mass_flow_air + mass_flow_fuel)
+Area_nozzle,_,_ = compute_nozzle_converging_area_mach(gamma, R, static_T7, P7, mass_flow_fuel , 1)
+
 print("Area nozzle                      : \t", Area_nozzle, "[m^2]")
 
 propu_eff = comp_eff_propu_res(speed, V_10)
@@ -196,13 +198,13 @@ P8  = Total_pressure_combustion(aftern_burn_pressure_loss,P7)
 print("Pressure afterburner             : \t", P8/10**3, "[kPa]")
 print(" ####################### Nozzle ####################### ")
 
-V_10, gamma, Cp, mach_number = compute_mach_exhaust(P8, Temp_isa.P0 ,1.38, T8, mass_flow_fuel + m_after_burn, mass_flow_air, R)
+V_10, gamma, Cp, mach_number, static_T8 = compute_mach_exhaust(P8, Temp_isa.P0 ,1.38, T8, mass_flow_fuel + m_after_burn, mass_flow_air, R)
 print("Speed exhaust                    : \t", V_10, "[m/s]")
 
 trust = compute_thrust(V_10, mass_flow_air, mass_flow_fuel + m_after_burn, speed, P7, P7,0, 0)
 print_trust(trust)
 
-Area_nozzle = compute_nozzle_area(V_10, Temp_isa.P0, Temp_isa.T0, R, mass_flow_air + mass_flow_fuel + m_after_burn)
+Area_nozzle,_,_ = compute_nozzle_converging_area_mach(gamma, R, static_T8, P8, mass_flow_fuel + m_after_burn, 1)
 
 print("Area nozzle                      : \t", Area_nozzle, "[m^2]")
 SFC = compute_specific_fuel_consumption(mass_flow_fuel + m_after_burn, trust)
@@ -215,14 +217,6 @@ print("Thermal efficiency               : \t", propu_eff)
 Q = compute_heat_Q(mass_flow_fuel + m_after_burn, FuelLowerHeat)
 W = compute_work_W(mass_flow_air, speed, mass_flow_fuel + mass_flow_air + m_after_burn, V_10)
 eta_th = thermal_eff(W,Q)
-print("W                               : \t", W)
-print("Q                               : \t", Q)
-print("eta_th                          : \t", eta_th)
-eta_p = propu_eff(trust,speed,W)
-print("eta_p                           : \t", eta_p)
-eff_tot = eta_th * eta_p
-print("eff_tot                         : \t", eff_tot)
-
 
 
 

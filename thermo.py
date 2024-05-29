@@ -1,3 +1,5 @@
+import numpy as np
+
 def thermal_eff(W,Q_c):
     """
     Calculate the thermal efficiency.
@@ -23,8 +25,8 @@ def propu_eff(T,v_init,W) :
     Returns:
     float: The propulsive efficiency.
     """
-    # return T*(v_init)/W
-    return 1
+    return T*(v_init)/W
+
 
 def compute_work_W(mass_flow_input, speed_input ,mass_flow_output, speed_output) : 
     """
@@ -72,6 +74,7 @@ def compute_iso_eff_pure(TiT, ToT, ToT_iso) :
     return (TiT - ToT) / (TiT - ToT_iso)
 
 def compute_Temp_iso(pot, pit, TiT, gamma) : 
+    
     return TiT * (pot/pit) **((gamma - 1)/gamma)
 
 def comp_eff_propu_res(v_start, v_end) : 

@@ -83,7 +83,7 @@ P3  = Compute_press_output(Pi_c, P2)
 
 
 # gamma_3 is not given so need to do a processue iterative to find it
-poly_eff = eff_iso2eff_poly(Pi_c, isa_sea_lvl.gamma_index, eta_c_s)
+poly_eff = eff_iso2eff_poly_compressor(Pi_c, isa_sea_lvl.gamma_index, eta_c_s)
 gamma, Cp, T3 = compute_tot_isentropic_eff_compressor(poly_eff,1.38,Pi_c,T2,isa_sea_lvl.R)
 power_compress = compute_power_compressor(m_air, Cp, T2, T3)
 
@@ -117,7 +117,7 @@ print("Pressure                  : \t",P5/10**3," [kPa]")
 
 gamma, T6_Static =  compute_nozzle_converging_pressure_ratio_phi_n(1.38, T5, m_air, m_fuel, isa_sea_lvl.R)
 shock = compute_nozzle_converging_pressure_ratio_prime(gamma, P5, isa_sea_lvl.P0)
-A_ex, P6_static, speed_end_cycle = compute_nozzle_converging_area(gamma, isa_sea_lvl.R, T6_Static, P5, m_air + m_fuel)
+A_ex, P6_static, speed_end_cycle = compute_nozzle_converging_area_mach(gamma, isa_sea_lvl.R, T6_Static, P5, m_air + m_fuel)
 Trust    = compute_thrust(speed_end_cycle, m_air, m_fuel, speed_0, P6_static, isa_sea_lvl.P0, A_ex, shock) 
 SFC_simple = compute_specific_fuel_consumption(m_fuel, Trust)
 print("############## Nozzle Condition #########################")

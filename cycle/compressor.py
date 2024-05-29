@@ -9,12 +9,12 @@ def compute_tot_isentropic_eff_compressor(Polytropic_eff,
                                           R,stage = 1) :
     
     compression_factor = compression_factor**stage
-    tol   = 1e5
+    tol   = 1e-5
     gamma = gamma_start 
     iter  = 100 
     i     = 0 
     old_gamma = 1
-    while  i < iter and abs((old_gamma -  gamma)/gamma < tol) :
+    while  i < iter and tol < abs((old_gamma -  gamma)/gamma ) :
         old_gamma       = gamma
         eff_iso         = eff_poly2eff_iso_compressor(compression_factor,gamma,Polytropic_eff)
         isentropic_temp = TiT * compression_factor**((gamma-1)/gamma)
@@ -32,12 +32,12 @@ def compute_tot_isentropic_directly_eff_compressor(eff_iso,
                                           R,stage = 1) :
     
     compression_factor = compression_factor**stage
-    tol   = 1e5
+    tol   = 1e-5
     gamma = gamma_start 
     iter  = 100 
     i     = 0 
     old_gamma = 1
-    while  i < iter and abs((old_gamma -  gamma)/gamma < tol) :
+    while  i < iter and tol < abs((old_gamma -  gamma)/gamma ) :
         old_gamma       = gamma
         isentropic_temp = TiT * compression_factor**((gamma-1)/gamma)
         total_temp      = (isentropic_temp - TiT) / eff_iso  + TiT
@@ -50,11 +50,14 @@ def compute_tot_isentropic_directly_eff_compressor(eff_iso,
 def compute_power_compressor(mass_flow, CP, TiT, ToT) :
     return mass_flow * CP *(ToT -TiT)
 
+def compute_eff_polytropic_compressor(gamma, ratio_pressure, TiT, ToT) : 
+    return (gamma -1)/gamma * np.log(ratio_pressure)/(np.log(ToT/TiT))
+
 
 def Compute_press_output(factor_compress, input_press) : 
     return factor_compress * input_press
 
-def compute_iso_compressor(pot, pit, tit ,tot, gamma) :
+def compute_eff_iso_compressor(pot, pit, tit ,tot, gamma) :
     pi_c = pot/pit
     ratio_t = tot/ tit
     return (pi_c**((gamma - 1)/gamma) - 1 )/( ratio_t - 1)
@@ -112,3 +115,16 @@ def compute_m_entrant_totot(by_pass, m_air) :
 
 def compute_m_sortant_tot_m(by_pass,m_air) : 
     return (m_air * by_pass) /(1 + by_pass)
+
+
+def compute_temp__comb_with_poly(T1, ratio_pressure, eff_pol, gamma) :
+    """
+    formule vient page 54  T2/T1 = (P2/P1)**((gamma -1)/gamma/ eff_pol)
+    """
+    return (ratio_pressure)**( (gamma -1)/(gamma * eff_pol)) * T1
+
+
+def compute_temp_comp_iso(compression_factor, TiT, gamma, eff_iso) :
+    isentropic_temp = TiT * compression_factor**((gamma-1)/gamma)
+    total_temp      = (isentropic_temp - TiT) / eff_iso  + TiT
+    return total_temp

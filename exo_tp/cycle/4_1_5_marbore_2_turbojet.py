@@ -52,7 +52,7 @@ TiT_chamber = 800 + 273.15
 eta_turbine_isentro = 0.8
 
 # first phase ambiante condition 
-T_2, CP12 = compute_temperature_before_chamber(m_air, m_fuel,TiT_chamber,isa_sea_lvl.T0_r,1000, fuel_lower_heating)
+T_2, CP12 = compute_temperature_before_chamber(m_air, m_fuel,TiT_chamber,isa_sea_lvl.T0_r,1000, fuel_lower_heating, 1)
 
 print("T_2                  : \t", T_2)
 print("CP                   : \t",CP12)

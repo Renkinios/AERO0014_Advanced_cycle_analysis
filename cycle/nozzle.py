@@ -17,12 +17,16 @@ def compute_nozzle_converging_pressure_ratio_phi_n(gamma_start, TiT_tot, m_air, 
     """
     gamma_old = 0
     gamma = gamma_start
-    tol = 1e4
+    tol = 1e-4
     iter = 0
     iter_max = 100
     M = 1           # to look if we have some shock 
     f = m_fuel/m_air
-    while iter < iter_max and np.abs((gamma_old - gamma)) / gamma < tol :
+    print(iter < iter_max)
+    print(np.abs((gamma_old - gamma)) / gamma > tol )
+    print(tol)
+    while iter < iter_max and tol < np.abs((gamma_old - gamma)) / gamma  :
+        print("okok")
         gamma_old = gamma
         Ti     = Total_temp2static_temp(gamma, TiT_tot, M) 
         CP = findCp((Ti + TiT_tot)/2, f)
@@ -71,7 +75,7 @@ def compute_nozzle_area(speed, static_pres, static_temps, R, dot_m) :
 
 
 
-def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fuel, v_0, isa) :
+def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fuel, v_0,isa) :
 
     # first step see if we have a mach number : 
     # this is calculate with a mac of 1 to sea if we have a shock or not

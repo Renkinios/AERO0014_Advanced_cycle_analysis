@@ -28,11 +28,11 @@ def mass_flow_chamber(mass_flow,TiT,ToT,Ref_temp,Comb_eff,FuelLowerHeat,Starf) :
     '''
     f        = Starf
     f_old    = 0
-    tol      = 1e4
+    tol      = 1e-4
     iter     = 0
     iter_max = 100
     CP4   = findCp((Ref_temp + TiT)/2, 0)
-    while  iter < iter_max and np.abs(f_old - f)/f < tol :
+    while  iter < iter_max and   tol < np.abs(f_old - f)/f  :
         f_old = f 
         CP5   = findCp((Ref_temp + ToT)/2,f)
         mdotf = mass_flow * (CP4 * (TiT - Ref_temp) - CP5 * (ToT - Ref_temp))/(CP5 *(ToT - Ref_temp) - Comb_eff * FuelLowerHeat)
@@ -41,20 +41,21 @@ def mass_flow_chamber(mass_flow,TiT,ToT,Ref_temp,Comb_eff,FuelLowerHeat,Starf) :
 
     return mdotf 
 
-def compute_temperature_before_chamber(m_air ,m_fuel, ToT, T_ref, start_cp, heating_value) : 
+def compute_temperature_before_chamber(m_air ,m_fuel, ToT, T_ref, start_cp, heating_value, eff_combustion) : 
     """
     start_cp : 1000
     """
     Cp_output     = start_cp
     Cp_output_old = 0
     Cp_input      = findCp((ToT + T_ref)/2, (m_fuel)/ m_air) # before add fuel 
-    tol           = 1e4
+    print("Cp_input", Cp_input)
+    tol           = 1e-4
     iter          = 0 
     iter_max      = 100
 
-    while iter < iter_max and np.abs((Cp_output_old - Cp_output)/Cp_output) < tol : 
+    while iter < iter_max and tol < np.abs((Cp_output_old - Cp_output)/Cp_output)  : 
         Cp_output_old = Cp_output
-        Total_temp    = T_ref + ((m_fuel + m_air) * Cp_input * (ToT - T_ref) - m_fuel * heating_value)/(m_air * Cp_output)
+        Total_temp    = T_ref + ((m_fuel + m_air) * Cp_input * (ToT - T_ref) - m_fuel * eff_combustion * heating_value)/(m_air * Cp_output)
         Cp_output     = findCp((Total_temp + T_ref)/2, 0)
         iter         += 1
     return Total_temp, Cp_output
@@ -75,13 +76,13 @@ def mass_flow_chamber_afterburn(mass_flow,m_fuel,TiT,ToT,Ref_temp,Comb_eff,FuelL
 
     '''
     f_old    = 0
-    tol      = 1e4
+    tol      = 1e-4
     iter     = 0
     iter_max = 100
     f_without_afternburn = m_fuel/mass_flow
     CP4      = findCp((Ref_temp + TiT)/2, f_without_afternburn)
     f        = f_without_afternburn
-    while  iter < iter_max and np.abs(f_old - f)/f < tol :
+    while  iter < iter_max and tol < np.abs(f_old - f)/f  :
         f_old = f 
         CP5   = findCp((Ref_temp + ToT)/2,f)
         mdotf_after_burn = mass_flow * (CP4 * (TiT - Ref_temp) - CP5 * (ToT - Ref_temp))/(CP5 *(ToT - Ref_temp) - Comb_eff * FuelLowerHeat)
@@ -108,11 +109,11 @@ def compute_temperature_afterburn_Wet(m_air ,m_fuel, m_after_burn, TiT, T_ref, s
     Cp_output     = start_cp
     Cp_output_old = 0
     Cp_input      = findCp((TiT + T_ref)/2, m_fuel/m_air) # before add fuel 
-    tol           = 1e4
+    tol           = 1e-4
     iter          = 0 
     iter_max      = 100
 
-    while iter < iter_max and np.abs((Cp_output_old - Cp_output)/Cp_output) < tol : 
+    while iter < iter_max and tol < np.abs((Cp_output_old - Cp_output)/Cp_output)  : 
         Cp_output_old = Cp_output
         Total_temp    = T_ref + ((m_air + m_fuel)*Cp_input * (TiT - T_ref) + eff_af * heating_value * m_after_burn)/((m_air + m_fuel + m_after_burn) * Cp_output)
         Cp_output     = findCp((Total_temp + T_ref)/2, (m_fuel + m_after_burn)/ m_air)

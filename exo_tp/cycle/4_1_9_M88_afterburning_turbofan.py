@@ -85,7 +85,7 @@ from thermo import *
 from cycle.nozzle import *
 from fonction_print import *
 
-hating_fuel_value = 42.8 * 1**6  # [J/kg]
+hating_fuel_value = 42.8 * 10**6  # [J/kg]
 
 
 
@@ -140,9 +140,11 @@ pressure_loss_chamber = 0.03
 P4 = Total_pressure_combustion(pressure_loss_chamber, P1)  # [Pa] total pressure at the exit of the combustion chamber
 T4 = 1560  # [K] turbine inlet temperature
 
+eff_cc = 0.99
+
 
 print("m_entrance \t:", m_entrance)
-T3, CP3 = compute_temperature_before_chamber(m_entrance, m_fuel_dry, T4, isa_0.T0_r, 1000, hating_fuel_value)  # [K] temperature at the exit of the compressor
+T3, CP3 = compute_temperature_before_chamber(m_entrance, m_fuel_dry, T4, isa_0.T0_r, 1000, hating_fuel_value, eff_cc)  # [K] temperature at the exit of the compressor
 
 #  Assume that the gamma is the same for all the compression we can converte the eta_p_c in eta_s_c
 
@@ -161,16 +163,36 @@ ratio_p_beging_low = 1
 iter = 0
 max_iter = 100
 tol = 1e-4
-# considere le meme gamma du xou 
-while iter < max_iter and  np.abs((ratio_p_old_low - ratio_p_beging_low)/ratio_p_beging_low) < tol:
-    ratio_p_old_low = ratio_p_beging_low
-    T_2_guess = compute_Temp_iso(comp_factor, 1, T1, gamma_c)
-    T_3_guess = compute_Temp_iso(comp_factor, 1, T_2_guess, gamma_c)
-    work_comp = m_air * (CP3 * (T_2_guess - T1)) -  m_entrance *( CP3 * (T3 - T_2_guess))
-    work_turb = work_comp / (m_entrance + m_fuel_dry)
-    p_5_guess = 0.99 * ratio_p_beging_low * P1
-    work_turb = comp_work_turbine(CP3, T4, P4/p_5_guess, eff_s_c, gamma_c) 
-    iter += 1
+iter_first = 0
+power_comp = 1
+power_turb = 0
+gamma_t_old = 1
+gamma_t = 1.4
+while iter_first < max_iter and  tol < np.abs(power_comp - power_turb) :
+    while iter < max_iter and  tol < np.abs((ratio_p_old_low - ratio_p_beging_low)/ratio_p_beging_low) :
+        iter += 1
+        ratio_p_old_low = ratio_p_beging_low
+        ratio_c_high    = comp_factor * ratio_p_beging_low
+        T_2_guess  = compute_Temp_iso(comp_factor, 1, T1, gamma_c)
+        T_3_guess  = compute_Temp_iso(comp_factor, 1, T_2_guess, gamma_c)
+        power_comp = m_air * (CP3 * (T_2_guess - T1)) -  m_entrance *( CP3 * (T3 - T_2_guess))
+        T_5_guess  = compute_Temp_iso(comp_factor, 1, T4, gamma_t)
+        Cp4        = findCp((T4 + T_5_guess)/2, m_fuel_dry/m_entrance)
+        gamma_t    = findGamma_indec(Cp4, isa_0.R)
+
+        
+    iter_first += 1
+    power_turb =  (m_entrance + m_fuel_dry)* compute_work_turbine_entalpis(CP3, T4, T_5_guess, Cp4)
+# # considere le meme gamma du xou 
+# while iter < max_iter and  np.abs((ratio_p_old_low - ratio_p_beging_low)/ratio_p_beging_low) < tol:
+#     ratio_p_old_low = ratio_p_beging_low
+#     T_2_guess = compute_Temp_iso(comp_factor, 1, T1, gamma_c)
+#     T_3_guess = compute_Temp_iso(comp_factor, 1, T_2_guess, gamma_c)
+#     work_comp = m_air * (CP3 * (T_2_guess - T1)) -  m_entrance *( CP3 * (T3 - T_2_guess))
+#     work_turb = work_comp / (m_entrance + m_fuel_dry)
+#     p_5_guess = 0.99 * ratio_p_beging_low * P1
+#     work_turb = comp_work_turbine(CP3, T4, P4/p_5_guess, eff_s_c, gamma_c) 
+#     iter += 1
 
 # ... error 
 

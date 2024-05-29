@@ -95,7 +95,7 @@ P1  = P0  # the motor is at rest so don't increase inertia
 # comp outlet can considering like a group 
 
 # chamber inlet (2)
-T2, cp2 = compute_temperature_before_chamber(m_air, fuel_mass_flow, Temperature_inlet, isa_sea_lvl.R, 1000, fuel_lower_heat)
+T2, cp2 = compute_temperature_before_chamber(m_air, fuel_mass_flow, Temperature_inlet, isa_sea_lvl.R, 1000, fuel_lower_heat, 1)
 
 T1 = isa_sea_lvl.T0_r #  --> same CP like T_ref = T_1 like sea lvl and rest
 

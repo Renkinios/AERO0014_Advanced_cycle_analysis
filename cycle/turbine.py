@@ -27,11 +27,11 @@ def compute_temp_turbine(TiT,P_hpt,m_a,m_f,ToT_beging) :
     """
     ToT_old  = 0 
     ToT      = ToT_beging
-    tol      = 1e4
+    tol      = 1e-4
     iter     = 0
     iter_max = 100
     f        = m_f/m_a
-    while iter < iter_max and np.abs((ToT_old - ToT)) /ToT < tol :
+    while iter < iter_max and tol < np.abs((ToT_old - ToT)) /ToT  :
         Cp_5_6 = findCp((TiT + ToT)/2,f)
         ToT    = (-P_hpt/ ((m_a+m_f) * Cp_5_6)) + TiT
         iter  += 1
@@ -63,4 +63,13 @@ def comp_work_turbine(cp, tit, ratio_p, eff_s, gamma) :
     """
     return eff_s * tit * (ratio_p**((gamma - 1)/gamma) - 1)
 
+def compute_work_turbine_entalpis(Cp, TiT, ToT) : 
+    return Cp * (TiT - ToT)
+
+
+def compute_temp__turbine_with_poly(T1, ratio_pressure, eff_pol, gamma) :
+    """
+    formule vient page 56  T2/T1 = (P2/P1)**(eff_pol *(gamma -1)/gamma)
+    """
+    return (ratio_pressure)**(eff_pol *(gamma -1)/gamma) * T1
 
