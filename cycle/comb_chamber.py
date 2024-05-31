@@ -1,5 +1,6 @@
 import numpy as np
 from findCp import *
+from basic import *
 
 def Total_pressure_combustion(comb_chamber_pressur_loss,initial_pressure) : 
     '''
@@ -40,6 +41,12 @@ def mass_flow_chamber(mass_flow,TiT,ToT,Ref_temp,Comb_eff,FuelLowerHeat,Starf) :
         iter += 1
 
     return mdotf 
+
+def compute_f_generall(CP_cc, T4, T3, eff_cc, entalpis):
+    """
+    Come form one exercice where we need to determined the mass flow he give to use the CP_cc
+    """
+    return CP_cc *(T4 - T3)/(eff_cc * entalpis)
 
 def compute_temperature_before_chamber(m_air ,m_fuel, ToT, T_ref, start_cp, heating_value, eff_combustion) : 
     """
@@ -120,4 +127,63 @@ def compute_temperature_afterburn_Wet(m_air ,m_fuel, m_after_burn, TiT, T_ref, s
         iter         += 1
 
     return Total_temp
+
+def compute_temperature_after_chamber(m_air ,m_fuel, TiT, T_ref, start_cp, eff_af, heating_value) :
+    """
+    Compute temperature afterburn, considering new fuel the fuel afterburn going to have a worst efficiency but mroe trust
+    Args :
+        - m_air : mass flow air
+        - m_fuel : mass flow fuel
+        - m_after_burn : mass flow afterburn added in wet mode
+        - TiT : temp in the antrance
+        - T_ref : temp of reference ft hp 
+        - start_cp : first guess
+        - eff_af   : effiiency of the afterburn 
+        - heating_value : chaleur added to the afterbunr the delta_h increasing 
+
+    """
+
+    Cp_output     = start_cp
+    Cp_output_old = 0
+    Cp_input      = findCp((TiT + T_ref)/2, 0) # before add fuel 
+    tol           = 1e-4
+    iter          = 0 
+    iter_max      = 100
+
+    while iter < iter_max and tol < np.abs((Cp_output_old - Cp_output)/Cp_output)  : 
+        Cp_output_old = Cp_output
+        Total_temp    = T_ref + ((m_air )*Cp_input * (TiT - T_ref) + eff_af * heating_value * m_fuel)/((m_air + m_fuel ) * Cp_output)
+        Cp_output     = findCp((Total_temp + T_ref)/2, (m_fuel )/ m_air)
+        iter         += 1
+    return Total_temp
+
+
+def compute_F(gamma, M) : 
+    """
+    This is the fonction to converte the all m_dot_tot to m_dot_stat 
+    """
+    return np.sqrt(gamma) * M * (1 + (gamma - 1)/2 * M**2)**(-(gamma + 1)/(2 * (gamma - 1)))
+def compute_fuse_cond_shock_iter(p_tot, T_tot, gamma, Ae, At) : 
+
+    iter = 0
+    iter_max = 100
+    Mac_start = 4
+    start_F = compute_F(gamma,Mac_start)
+    F_0 = compute_F(gamma, 1)
+    tol = 1e-5
+    for i in (1,5, 10, 50, 100, 200 ,300 ,200,300, 400, 500, 600, 7000, 800, 900, 1000,) : 
+        while iter < iter_max and  np.abs(F_0 - start_F *Ae/At) > tol  :
+            # print(F_0 - start_F *Ae/At, Mac_start + iter * 1/i)
+            MAC_end = Mac_start + iter * 1/i
+            start_F = compute_F(gamma, MAC_end)
+            if F_0 - start_F *Ae/At > 0 :
+                start_F = Mac_start + iter * 0.001
+                break
+            iter +=1
+        
+    print("Start_f_end", np.abs(F_0 - start_F *Ae/At))
+    print("diff_gama", F_0 - compute_F(gamma,5.2) * Ae/At )
+    return MAC_end
+
+
 

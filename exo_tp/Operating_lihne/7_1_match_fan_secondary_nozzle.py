@@ -44,14 +44,7 @@ T1, P1 = ambiante_condition(ISA.gamma_index, Mc, ISA.T0, ISA.P0)
 
 print_stat(P1, T1, "Ambiante")
 
-m_flow = compute_massFlow_by_correct(T1, P1, mass_flow_cor)
 
-
-# if sea have shoock need to determine the NPR = p2/p1
-
-NPR = ratio_pressure_sec * P1 / ISA.P0
-
-m_second = alpha/(alpha + 1) * m_flow
 
 
 # Calcule the rapport m*/As = rho* v*

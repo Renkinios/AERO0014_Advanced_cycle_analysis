@@ -327,3 +327,5 @@ def convenergy(value, input_unit, output_unit):
     converted_value = value_in_joules / units_to_joules[output_unit]
     
     return converted_value
+
+print((4 - 0.125)/1.25)

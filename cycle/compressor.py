@@ -128,3 +128,9 @@ def compute_temp_comp_iso(compression_factor, TiT, gamma, eff_iso) :
     isentropic_temp = TiT * compression_factor**((gamma-1)/gamma)
     total_temp      = (isentropic_temp - TiT) / eff_iso  + TiT
     return total_temp
+
+def compute_premary_fow_Fan(alpha, m_flow):
+    return (m_flow)/(alpha + 1)
+
+def compute_secondary_flow(alpha, m_flow):
+    return (m_flow * alpha)/(alpha + 1)

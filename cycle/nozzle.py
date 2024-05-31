@@ -22,11 +22,7 @@ def compute_nozzle_converging_pressure_ratio_phi_n(gamma_start, TiT_tot, m_air, 
     iter_max = 100
     M = 1           # to look if we have some shock 
     f = m_fuel/m_air
-    print(iter < iter_max)
-    print(np.abs((gamma_old - gamma)) / gamma > tol )
-    print(tol)
     while iter < iter_max and tol < np.abs((gamma_old - gamma)) / gamma  :
-        print("okok")
         gamma_old = gamma
         Ti     = Total_temp2static_temp(gamma, TiT_tot, M) 
         CP = findCp((Ti + TiT_tot)/2, f)
@@ -45,6 +41,8 @@ def compute_nozzle_converging_pressure_ratio_prime(gamma, total_p, static_pressu
     rap_p = total_p/static_pressure_start_cycle
     if rap_p>= phi_n : 
         print("############ Danger ############")
+        print("Rap_p", rap_p)
+        print("phi_n", phi_n)
         print("The nozzle is shock")
         print("##################################")
 
@@ -71,11 +69,8 @@ def compute_nozzle_area(speed, static_pres, static_temps, R, dot_m) :
     rho = static_pres/ (R * static_temps)
     return dot_m / (rho * speed)
 
-    
 
-
-
-def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fuel, v_0,isa) :
+def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fuel, v_0, isa) :
 
     # first step see if we have a mach number : 
     # this is calculate with a mac of 1 to sea if we have a shock or not
@@ -84,13 +79,17 @@ def trust_nozzle_all(gamma_start, total_temp, total_pression, flux_air, flux_fue
 
     if shock == 1 :
         # the mac didn't change so M = 1
-        area, static_pressure, speed_output_fan = compute_nozzle_converging_area_mach(gamma, isa.R, static_temp, total_pression, flux_air + flux_fuel, 1)
-        Trust = compute_thrust(speed_output_fan, flux_air, flux_fuel, v_0, static_pressure, isa.P0, area, shock)
+        area, static_pressure, V_out = compute_nozzle_converging_area_mach(gamma, isa.R, static_temp, total_pression, flux_air + flux_fuel, 1)
+        print("area", area)
+        print("static_pressure", static_pressure)
+        print("Speed output", V_out)
+        Trust = compute_thrust(V_out, flux_air, flux_fuel, v_0, static_pressure, isa.P0, area, shock)
     else :
         # The mac change so need to calculate it iteratively
         V_out, gamma, Cp, mach_number = compute_mach_exhaust(total_pression, isa.P0, gamma_start, total_temp, flux_fuel, flux_air, isa.R)
-        area, static_pressure, speed_output_fan = compute_nozzle_converging_area_mach(gamma, isa.R, isa.P0, total_pression, flux_air + flux_fuel, mach_number)
+        area, _, _ = compute_nozzle_converging_area_mach(gamma, isa.R, isa.P0, total_pression, flux_air + flux_fuel, mach_number)
+        # Normally don't need compute area
         Trust = compute_thrust(V_out, flux_air, flux_fuel, v_0, isa.P0, isa.P0, area, shock)
-    return Trust
+    return Trust, V_out
 
 
