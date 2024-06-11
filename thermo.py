@@ -1,4 +1,5 @@
 import numpy as np
+from findCp import *
 
 def thermal_eff(W,Q_c):
     """
@@ -82,3 +83,8 @@ def comp_eff_propu_res(v_start, v_end) :
 
 def comp_eff_termique_res(heating_val, mass_air, mass_fuel, v_start, v_end) : 
     return mass_air * ( v_end**2 - v_start**2 ) / (2 * mass_fuel * heating_val)
+
+ 
+def compute_mechanical_power_shock(m_fuel, exaust_speed, mdot, start_speed, p0, rho0, p_end, rho_end) : 
+    return (mdot+m_fuel)*(exaust_speed**2 /2 + (p_end/rho_end)) - mdot*(start_speed**2 /2 + (p0/rho0))
+

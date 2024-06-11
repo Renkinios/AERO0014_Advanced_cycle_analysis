@@ -92,7 +92,7 @@ def mass_flow_chamber_afterburn(mass_flow,m_fuel,TiT,ToT,Ref_temp,Comb_eff,FuelL
     while  iter < iter_max and tol < np.abs(f_old - f)/f  :
         f_old = f 
         CP5   = findCp((Ref_temp + ToT)/2,f)
-        mdotf_after_burn = mass_flow * (CP4 * (TiT - Ref_temp) - CP5 * (ToT - Ref_temp))/(CP5 *(ToT - Ref_temp) - Comb_eff * FuelLowerHeat)
+        mdotf_after_burn = (mass_flow + m_fuel) * (CP4 * (TiT - Ref_temp) - CP5 * (ToT - Ref_temp))/(CP5 *(ToT - Ref_temp) - Comb_eff * FuelLowerHeat)
         f     = (mdotf_after_burn + m_fuel)/mass_flow
         iter += 1
 
@@ -112,7 +112,7 @@ def compute_temperature_afterburn_Wet(m_air ,m_fuel, m_after_burn, TiT, T_ref, s
         - heating_value : chaleur added to the afterbunr the delta_h increasing 
 
     """
-
+    
     Cp_output     = start_cp
     Cp_output_old = 0
     Cp_input      = findCp((TiT + T_ref)/2, m_fuel/m_air) # before add fuel 
@@ -122,10 +122,12 @@ def compute_temperature_afterburn_Wet(m_air ,m_fuel, m_after_burn, TiT, T_ref, s
 
     while iter < iter_max and tol < np.abs((Cp_output_old - Cp_output)/Cp_output)  : 
         Cp_output_old = Cp_output
-        Total_temp    = T_ref + ((m_air + m_fuel)*Cp_input * (TiT - T_ref) + eff_af * heating_value * m_after_burn)/((m_air + m_fuel + m_after_burn) * Cp_output)
+        Total_temp    = T_ref + ((m_air + m_fuel) * Cp_input * (TiT - T_ref) + eff_af * heating_value * m_after_burn)/((m_air + m_fuel + m_after_burn) * Cp_output)
         Cp_output     = findCp((Total_temp + T_ref)/2, (m_fuel + m_after_burn)/ m_air)
         iter         += 1
 
+    if iter > iter_max : 
+        print("Danger didn't converge")
     return Total_temp
 
 def compute_temperature_after_chamber(m_air ,m_fuel, TiT, T_ref, start_cp, eff_af, heating_value) :

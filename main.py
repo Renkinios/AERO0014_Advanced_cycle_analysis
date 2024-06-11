@@ -10,6 +10,8 @@ from cycle.exhaust import *
 from fonction_print import *
 from cycle.nozzle import *
 from thermo import *
+from fonction_print import *
+
 
 
 # Compute the iffernt mode of a cycle
@@ -139,10 +141,6 @@ print("Pressure Low Pressure Turbine     : \t", P6/10**3, "[KPa]")
 print(" ####################### Low pressure turbine ####################### ")
 
 meca_eff_shaft_low = 0.995
-
-power_lpc = power_produce_turbine(Power_comp_lpc,meca_eff_shaft_low)
-loss_shaft =  -Power_comp_lpc + power_lpc
-print("Loss Shaft : \t",loss_shaft/10)
 print("Power Low Pressure Turbine : \t",Power_comp_lpc/10**6,"[MW]")
 
 T_7_first_guess  = 1000 
@@ -159,19 +157,25 @@ print(" ####################### Afterburner ####################### ")
 
 print(" ####################### Nozzle ####################### ")
 
-Trust, V_out = trust_nozzle_all(1.38, T7, P7, mass_flow_air, mass_flow_fuel, speed, Temp_isa)
+Trust, V_out, rho_dry, static_pressure_P8 = trust_nozzle_all(1.38, T7, P7, mass_flow_air, mass_flow_fuel, speed, Temp_isa)
 
-W = compute_work_W(mass_flow_air, speed, mass_flow_fuel + mass_flow_air, V_out)
-Q = compute_heat_Q(mass_flow_fuel, FuelLowerHeat)
+SFC_dry = (mass_flow_fuel)/Trust  
 
-eff_thermique = thermal_eff(W,Q)
-eff_propu = propu_eff(Trust, speed, W)
+Power_meca_dry = compute_mechanical_power_shock(mass_flow_fuel, V_out, mass_flow_air, speed, Temp_isa.P0, Temp_isa.rho0, static_pressure_P8, rho_dry)
+Power_propu_dry = Trust * speed
+Thermal_power = (mass_flow_fuel) * FuelLowerHeat
 
-print("Trust dry                        : \t", Trust, "[N]")
-print("V_out                            : \t", V_out, "[m/s]")
+print_power(Power_meca_dry, "mechanical")
+print_power(Power_propu_dry, "propulsive")
+print_power(Thermal_power, "thermal")
+print("propulsive lost", (Power_meca_dry - Power_propu_dry)/10**6, " [MW]")
+print("Lost thermal",(Thermal_power -  Power_meca_dry)/10**6, " [MW]")
+print("Thermal efficiency ",Power_meca_dry / Thermal_power)
+print("Propulsion effiecy ", Power_propu_dry / (Power_meca_dry))
+print("Overall efficiency ", Power_meca_dry / Thermal_power * Power_propu_dry / (Power_meca_dry))
+print_trust(Trust)
+print_SFC(SFC_dry)
 
-print("Thermal efficiency               : \t", eff_thermique)
-print("Propulsive efficiency            : \t", eff_propu)
 print("####################### WET mode #######################")
 print(" ###################### Afterburn ####################### ")
 
@@ -179,7 +183,6 @@ aftern_burn_pressure_loss = 0.06
 aftern_burn_comb_eff      = 0.91
 start_cp                  = 1000
 m_after_burn              = 2.5
-
 
 T8  = compute_temperature_afterburn_Wet(mass_flow_air ,mass_flow_fuel, m_after_burn, T7, Ref_temp, start_cp, aftern_burn_comb_eff, FuelLowerHeat)
 
@@ -189,20 +192,23 @@ P8  = Total_pressure_combustion(aftern_burn_pressure_loss,P7)
 print("Pressure afterburner             : \t", P8/10**3, "[kPa]")
 print(" ####################### Nozzle ####################### ")
 
+Trust, V_out, rho, static_pressure = trust_nozzle_all(1.38, T8, P8, mass_flow_air, mass_flow_fuel + m_after_burn, speed, Temp_isa)
 
+power_meca_dry  = compute_mechanical_power_shock(mass_flow_fuel + m_after_burn, V_out, mass_flow_air, speed, Temp_isa.P0, Temp_isa.rho0, static_pressure, rho)
+power_propu_dry = Trust * speed
+thermal_power   = (mass_flow_fuel + m_after_burn) * FuelLowerHeat
 
-Trust, V_out = trust_nozzle_all(1.38, T8, P8, mass_flow_air, mass_flow_fuel + m_after_burn, speed, Temp_isa)
+print_power(power_meca_dry, "mechanical")
+print_power(power_propu_dry, "propulsive")
+print_power(thermal_power, "thermal")
+print("propulsive lost", (power_meca_dry - power_propu_dry)/10**6, " [MW]")
+print("Lost thermal",(thermal_power -  power_meca_dry)/10**6, " [MW]")
 
-print("Trust wet                        : \t", Trust, "[N]")
-print("Exaust speed wet                 : \t", V_out, "[m/s]")
+print("Thermal efficiency ",power_meca_dry / thermal_power)
+print("Propulsion effiecy ", power_propu_dry / (power_meca_dry))
+print("Overall efficiency ", power_meca_dry / thermal_power * power_propu_dry / (power_meca_dry))
 
-Q = compute_heat_Q(m_after_burn + mass_flow_fuel, FuelLowerHeat)
-W = compute_work_W(mass_flow_air, speed, m_after_burn + mass_flow_fuel + mass_flow_air, V_out)
-print("Work wet                         : \t", W, "[W]")
+print_trust(Trust)
 
-eff_thermique = thermal_eff(W,Q)
-
-eff_propu = propu_eff(Trust, speed, W)
-
-print("Thermal efficiency               : \t", eff_thermique)
-print("Propulsive efficiency            : \t", eff_propu)
+SFC_wet = (mass_flow_fuel + m_after_burn)/Trust
+print_SFC(SFC_wet)

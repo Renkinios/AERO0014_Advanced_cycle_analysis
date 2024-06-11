@@ -17,13 +17,13 @@ def print_trust(trust) :
     '''
     print("Trust","                            : \t",trust/10**3, "[kN]")
 
-def print_power(power) :
+def print_power(power, type) :
     '''
     Print the power
     Inputs :
     - power : Power
     '''
-    print("Power","                            : \t",power/10**6, "[MW]")
+    print("Power ",type,"                            : \t",power/10**6, "[MW]")
 
 def print_mass_flow(mass_flow) :
     print("Mass Flow","                        : \t",mass_flow ,"[kg/s]")
@@ -39,3 +39,4 @@ def print_mac(mac) :
 
 def print_SFC(SFC) :
     print("Specific fuel consumption","       : \t",SFC* 3600 * 10,"[kg/daN/h]")
+

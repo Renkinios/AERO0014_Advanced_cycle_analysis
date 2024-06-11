@@ -27,6 +27,7 @@ class ISA_condition :
         self.T0_r        = 288.15    # [K] Reference temperature fot C_p
         self.gamma_index = 1.4       # [-] Adiabatic index
         self.C_P         = 0         # [J/kg.K] Specific heat at constant pressure
+        self.rho0        = 1.225     # [kg/m^3] Air density at sea level
         if isa : 
             T,P = atmosisa(altitude)
             self.T0 = T
