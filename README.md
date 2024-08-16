@@ -7,7 +7,8 @@
 ### Authors: 
 Victor Renkin
 
-This repository contains the code and documentation for the AERO0014 – Aerospace propulsion  for the academic year 2023–2024. The project focuses on Advanced cycle analysis on a Tumansky R25-300.
+This repository contains the code and documentation for the AERO0014 – Aerospace propulsion  for the academic year 2023–2024. The project focuses on Advanced cycle analysis on a Tumansky R25-300. I got 19/20 for the project here's the overleaf: https://www.overleaf.com/read/tpdfrxzpbrkb#031ee5
+In this github link there are also the codes that I used for the exam and the attempt to answer the tps question.
 
 ## Table of Contents
 
